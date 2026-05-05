@@ -4,10 +4,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        // ── Start database (creates library.db file if it doesn't exist) ──
+        // Start database (creates library.db file if it doesn't exist)
         Database db = new Database();
 
-        // ── Load saved data from database ──
+        // Load data from database
         Library library = new Library();
         foreach (var item in db.LoadAllItems())
             library.AddItem(item);
@@ -16,9 +16,9 @@ class Program
         foreach (var member in db.LoadAllMembers())
             libraryRegister.LoadMember(member);
 
-        Borrow borrowSystem = new Borrow(); // Borrow does not need DB dependency here
+        Borrow borrowSystem = new Borrow(); 
 
-        // ── Only add default items if database is empty ──
+        // if database is empty add some items
         if (!library.HasItems())
         {
             var defaults = new[]
