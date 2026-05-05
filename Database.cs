@@ -20,9 +20,7 @@ public class Database
         return connection;
     }
 
-    // ─────────────────────────────────────────
-    // CREATE TABLES (runs once on first launch)
-    // ─────────────────────────────────────────
+    // create table
     private void InitialiseTables()
     {
         using var connection = GetConnection();
@@ -53,9 +51,7 @@ public class Database
         cmd.ExecuteNonQuery();
     }
 
-    // ─────────────────────────────────────────
-    // ITEMS
-    // ─────────────────────────────────────────
+    // Items
     public void SaveItem(LibraryItem item)
     {
         using var connection = GetConnection();
@@ -103,9 +99,7 @@ public class Database
         return items;
     }
 
-    // ─────────────────────────────────────────
-    // MEMBERS
-    // ─────────────────────────────────────────
+    // Members
     public void SaveMember(Member member)
     {
         using var connection = GetConnection();
@@ -143,9 +137,7 @@ public class Database
         return members;
     }
 
-    // ─────────────────────────────────────────
-    // BORROWS
-    // ─────────────────────────────────────────
+    // Borrrows
     public void SaveBorrow(Member member, LibraryItem item, DateTime borrowDate)
     {
         using var connection = GetConnection();
