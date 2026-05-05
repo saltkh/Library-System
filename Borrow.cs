@@ -1,112 +1,77 @@
-
 public class Borrow
 {
-    public DateTime BorrowDate { get; set; }
-    public DateTime ReturnDate { get; set; }
+    private Dictionary<string, DateTime> borrowDates = new ();
+    private Dictionary<Member, List<LibraryItem>> borrowedItems = new ();
 
-    public bool IsLate { get; set; }
-
-    private Dictionary<Member, List<LibraryItem>> borrowedItems = new Dictionary<Member, List<LibraryItem>>();
-    
-
-    public List<LibraryItem> this[Member Id]
+    // Indexer — lets Program.cs do borrowSystem[member] to get their items
+    public List<LibraryItem> this[Member member]
     {
         get
         {
-            if (borrowedItems.ContainsKey(Id))
-            {
-                return borrowedItems[Id];
-            }
-            else
-
-            {
-                return new List<LibraryItem>();
-            }
-        }
-        set
-        {
-            if (!borrowedItems.ContainsKey(Id))
-            {
-                borrowedItems[Id] = new List<LibraryItem>();
-            }
-            borrowedItems[Id] = value;
+            return borrowedItems.ContainsKey(member) ? borrowedItems[member] : new List<LibraryItem>();
         }
     }
 
-
-
     public void BorrowedItems<T>(Member member, T item) where T : LibraryItem
     {
-        BorrowDate = DateTime.Now;
-
+        if (member.BorrowedBooks.Contains(item))
         {
-            if (IsLate)
-            {
-                Console.WriteLine("You have a late fee. Please pay it before borrowing more items.");
-                return;
-            }
-
-            if (member.BorrowedBooks.Count >= member.MaxBorrowDuration)
-            {
-                Console.WriteLine("You have reached the maximum number of items you can borrow.");
-                return;
-            }
-
-            if(member.BorrowedBooks.Contains(item))
-            {
-                Console.WriteLine("You have already borrowed this item.");
-                return;
-            }
-
-            member.BorrowedBooks.Add(item);
-            BorrowDate = DateTime.Now;
-            if (!borrowedItems.ContainsKey(member))
-            {
-                borrowedItems[member] = new List<LibraryItem>();
-            }
-
-            borrowedItems[member].Add(item);
-            Console.WriteLine($"{item.Title} was borrowed successfully. Please return it by {BorrowDate.AddDays(member.MaxBorrowDuration)}");
+            Console.WriteLine("You have already borrowed this item.");
+            return;
         }
+        if (member.BorrowedBooks.Count >= member.BorroweLimit)
+        {
+            Console.WriteLine("You have reached your borrow limit.");
+            return;
+        }
+
+        DateTime borrowDate = DateTime.Now;
+        member.BorrowedBooks.Add(item);
+        borrowDates[item.Number] = borrowDate;
+
+        if (!borrowedItems.ContainsKey(member))
+            borrowedItems[member] = new List<LibraryItem>();
+        borrowedItems[member].Add(item);
+
+        Console.WriteLine($"'{item.Title}' borrowed. Return by: {borrowDate.AddDays(member.MaxBorrowDuration):dd MMM yyyy}");
     }
 
     public void ReturnItem<T>(Member member, T item) where T : LibraryItem
     {
-        if ( !borrowedItems[member].Contains(item))
+        if (!borrowedItems.ContainsKey(member) || !borrowedItems[member].Contains(item))
         {
-            Console.WriteLine("You have not borrowed this items.");
+            Console.WriteLine("You have not borrowed this item.");
             return;
         }
 
-        ReturnDate = DateTime.Now;
+        DateTime borrowDate = borrowDates.ContainsKey(item.Number)
+            ? borrowDates[item.Number]
+            : DateTime.Now;
 
-        if (ReturnDate > BorrowDate.AddDays(member.MaxBorrowDuration))
+        DateTime dueDate = borrowDate.AddDays(member.MaxBorrowDuration);
+
+        // Always remove, no matter late or not
+        borrowedItems[member].Remove(item);
+        member.BorrowedBooks.Remove(item);
+        borrowDates.Remove(item.Number);
+
+        int lateDays = (DateTime.Now - dueDate).Days; //fix: no longer blocks other members if smb else had late fees
+        if (lateDays > 0)
         {
-            IsLate = true;
-            // LateFee = member.LateReturnFee();
-            Console.WriteLine($"You have returned {item.Title} late. Please pay the late fee of {member.LateReturnFee}");
+            decimal fee = lateDays * member.LateReturnFee;
+            Console.WriteLine($"'{item.Title}' returned {lateDays} day(s) late. Fee: {fee:C}");
         }
         else
         {
-            IsLate = false;
-            // LateFee = 0;
-            borrowedItems[member].Remove(item);
-            member.BorrowedBooks.Remove(item);
-            Console.WriteLine($"{item.Title} was returned successfully.");
+            Console.WriteLine($"'{item.Title}' returned successfully. Thank you!");
         }
     }
 
-
-    public decimal CalculateFee(Member member)
+    public decimal CalculateFee(Member member, LibraryItem item)
     {
-        int LateDays= (ReturnDate - BorrowDate.AddDays(member.MaxBorrowDuration)).Days;
-        if (LateDays>0)
-        {
-            return LateDays * member.LateReturnFee;
-        }
-        else
-        {
-            return 0;
-        }
+        if (!borrowDates.ContainsKey(item.Number)) return 0;
+        DateTime dueDate = borrowDates[item.Number].AddDays(member.MaxBorrowDuration);
+        int lateDays = (DateTime.Now - dueDate).Days;
+        return lateDays > 0 ? lateDays * member.LateReturnFee : 0;
     }
 }

@@ -79,13 +79,13 @@ public static class LibraryFactory
     {
         try
         {
-            switch (type)
+            switch (type.ToLower())
             {
-                case "Book":
+                case "book":
                     return new Book(number, title, author, genre);
-                case "Magazine":
+                case "magazine":
                     return new Magazines(number, title, author, genre);
-                case "ResearchPaper":
+                case "researchpaper":
                     return new ResearchPaper(number, title, author, genre);
                 default:
                     throw new ArgumentException("Invalid item type");
@@ -101,7 +101,8 @@ public static class LibraryFactory
 }
 
 public class Library
-{
+
+  {
     private List<LibraryItem> items = new List<LibraryItem>();
     private Dictionary<string, LibraryItem> library = new Dictionary<string, LibraryItem>();
     public void AddItem(LibraryItem item) 
@@ -117,63 +118,28 @@ public class Library
         }
     }
     
+    public bool HasItems()
+    {
+        return library.Count > 0;
+    }
 
-//     public LibraryItem SearchItem(string keyWord) 
-//     {
-//         List<LibraryItem> foundItems = new List<LibraryItem>();
-//         try 
-//         {
-//             if (string.IsNullOrEmpty(keyWord))
-//             {
-//                 throw new ArgumentException("Search item cannot be empty");
-//             }
-//             if (int.TryParse(keyWord, out int number) && number < 0)
-//             {
-//                 throw new ArgumentException("Search item cannot be a negative number");
-//             }
-//             bool IsAvailable = false;
-//             foreach (var i in library.Values)
-//             {
-//                 if (i.Search(keyWord))
-//                 {
-//                     i.Details();
-//                     foundItems.Add(i);
-//                     IsAvailable = true;
-//                 }
-//             }
-//             if (!IsAvailable)
-//             {
-//                 Console.WriteLine($"{keyWord} was not found");
-//                 return null;
-//             }
-//             if (foundItems.Count > 1)
-//             {
-//                 Console.WriteLine("Number of item you want to choose: ");
-//                 string NumberOfItem = Console.ReadLine();
-//                 foreach (var num in foundItems)
-//                 {
-//                     if (num.Number == NumberOfItem)
-//                     {
-//                         num.Details();
-//                         return num;
-//                     }
-//                 }
-//             }
-//             else if (foundItems.Count == 1)
-//             {
-//                 return foundItems[0];
-//             }
-//         }
-//         catch (ArgumentException ex)
-//         {
-//             Console.WriteLine($"Error: {ex.Message}");
-//             return null;
-//         }
-//         return null;
-//     }
-// }
+    public bool RemoveItem(string number)
+    {
+        return library.Remove(number);
+    }
 
-
+    public void ViewAllItems()
+    {
+        if (library.Count == 0)
+        {
+            Console.WriteLine("No items in the library.");
+            return;
+        }
+        Console.WriteLine($"\n--- All items ({library.Count}) ---");
+        foreach (var item in library.Values)
+            item.Details();
+    }
+    
 
 public LibraryItem? SearchItem(string keyWord)
 {

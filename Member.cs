@@ -1,7 +1,7 @@
 public abstract class Member
 {
     public string Id;
-    private string FullName;
+    public string FullName; //database needs it 
     public  List<LibraryItem> BorrowedBooks;
     public string MemberType;
 
@@ -78,73 +78,60 @@ class StandartMember : Member
 
 public class Register
 {
-     private List<Member> members = new List<Member>();
-    public void RegisterMember()
+    private List<Member> members = new List<Member>();
+
+    public void LoadMember(Member member)
     {
-        Member standartMember = new StandartMember("1", "Standart Member");
-        Member premiumMember = new PremiumMember("2", "Premium Member");
-
-        Console.WriteLine("---------Member Registration---------");
-        Console.WriteLine("Enter your Id");
-        string id = Console.ReadLine()?? string.Empty;
-        if(members.Exists(m => m.Id == id))
-        {
-            Console.WriteLine("Member with this id already exists. Please try again.");
-            return;
-        }
-
-        Console.WriteLine("Enter your full name");
-        string fullname = Console.ReadLine() ?? string.Empty;
-
-
-        Console.WriteLine("Choose membership type:");
-
-        Console.WriteLine("1. Premium Membership");
-        premiumMember.MembershipDetails();
-        Console.WriteLine(" 2. Standard Membership");
-        standartMember.MembershipDetails();
-
-
-        Console.Write("Enter your choice (1 or 2): ");
-        string membershipChoice = Console.ReadLine() ?? string.Empty;
-
-        while (membershipChoice != "1" && membershipChoice != "2")
-        {
-            Console.WriteLine("Invalid choice. Please try again.");
-            Console.Write("Enter your choice (1 or 2): ");
-            membershipChoice = Console.ReadLine() ?? string.Empty;
-        }
-        if (membershipChoice == "1")
-        {
-            Member newMember = new PremiumMember(id, fullname);
-            members.Add(newMember);
-            Console.WriteLine("You have successfully registered as a Premium Member.");
-        }
-        else if (membershipChoice == "2")
-        {
-            Member newMember = new StandartMember(id, fullname);
-            members.Add(newMember);
-            Console.WriteLine("You have successfully registered as a Standard Member.");
-        }
+        if (!members.Exists(m => m.Id == member.Id))
+            members.Add(member);
     }
-     public Member? SearchMember(string id)
+    
+    public Member? RegisterMember()
         {
-            
+            Console.WriteLine("---------Member Registration---------");
+            Console.Write("Enter your ID: ");
+            string id = Console.ReadLine() ?? string.Empty;
+
             if (members.Exists(m => m.Id == id))
             {
-                Member? member = members.FirstOrDefault(m => m.Id == id);
-
-                if (member != null)
-                {
-                    member.Details();
-                }
-                return member;
-            }
-            else
-            {
-                Console.WriteLine("Member not found.");
+                Console.WriteLine("Member with this ID already exists.");
                 return null;
             }
+
+            Console.Write("Enter your full name: ");
+            string fullname = Console.ReadLine() ?? string.Empty;
+
+            // Show membership options cleanly without dummy instances
+            Console.WriteLine("\nChoose membership type:");
+            Console.WriteLine("1. Premium  — £30/month, borrow up to 25 items, 30 days, £0.50/day late fee");
+            Console.WriteLine("2. Standard — £10/month, borrow up to 10 items, 12 days, £1.00/day late fee");
+            Console.Write("Enter your choice (1 or 2): ");
+
+            string membershipChoice = Console.ReadLine() ?? string.Empty;
+            while (membershipChoice != "1" && membershipChoice != "2")
+            {
+                Console.WriteLine("Invalid choice. Enter 1 or 2.");
+                membershipChoice = Console.ReadLine() ?? string.Empty;
+            }
+
+            Member newMember = membershipChoice == "1"
+                ? new PremiumMember(id, fullname)
+                : new StandartMember(id, fullname);
+
+            members.Add(newMember);
+            Console.WriteLine($"Registered successfully as {newMember.MemberType} member.");
+            return newMember;
         }
-}
-      
+
+        public Member? SearchMember(string id)
+        {
+            Member? member = members.FirstOrDefault(m => m.Id == id);
+            if (member != null)
+                member.Details();
+            else
+                Console.WriteLine("Member not found.");
+            return member;
+        }
+    }
+
+
