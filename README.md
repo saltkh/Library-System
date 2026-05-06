@@ -89,12 +89,3 @@ Password: admin1234
 
 ---
 
-## What I'd Add Next
-
-- REST API layer using ASP.NET Core
-- Unit tests with xUnit
-- Simple web frontend for the admin panel
-
----
-
-
