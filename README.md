@@ -47,7 +47,7 @@ The database file (`library.db`) is created automatically on first run. No setup
 
 ```
 Username: admin
-Password: 1234
+Password: admin1234
 ```
 
 ---
