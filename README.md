@@ -97,7 +97,4 @@ Password: 1234
 
 ---
 
-## Author
 
-**Mariam Saltkhutsishvili** — Third-year CS student, Tbilisi, Georgia
-[GitHub](https://github.com/saltkh)
