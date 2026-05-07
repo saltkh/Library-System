@@ -1,4 +1,4 @@
-# 📚 Library System
+# Library System
 
 A console-based library management system built in **C# (.NET 9)**, demonstrating object-oriented programming principles and persistent data storage with SQLite.
 
